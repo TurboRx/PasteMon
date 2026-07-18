@@ -36,7 +36,7 @@ PasteMon lets you paste your Pokemon Showdown team exports and instantly get a b
 ### Installation
 
 ```bash
-https://github.com/TurboRx/PasteMon.git
+git clone https://github.com/TurboRx/PasteMon.git
 cd PasteMon
 
 npm install
