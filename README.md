@@ -1,32 +1,30 @@
 # PasteMon
+![PasteMon](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss) ![Prisma](https://img.shields.io/badge/Prisma_7-SQLite-2D3748?style=flat-square&logo=prisma)
 
 > A modern Pokemon Showdown team paste and sharing platform.
 
 PasteMon lets you paste your Pokemon Showdown team exports and instantly get a beautiful visual preview with sprites, stats, moves, and more. Save your team with a unique shareable URL and browse public teams from the community.
 
-![PasteMon](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss) ![Prisma](https://img.shields.io/badge/Prisma_7-SQLite-2D3748?style=flat-square&logo=prisma)
-
 ## Features
 
-- 📝 **Paste & Parse** — Paste Showdown team exports and get instant visual previews
-- 🎨 **Beautiful UI** — Dark-mode-first design with animated sprites, stat bars, and glassmorphism
-- 🔗 **Shareable Links** — Save teams and get unique URLs to share anywhere
-- 🗄️ **Database Storage** — Prisma ORM with SQLite (swap to PostgreSQL for production)
-- 🌐 **Browse Teams** — Explore public team pastes from the community
-- 📋 **Copy Export** — Re-export teams back to Showdown format
-- ⚡ **Live Preview** — See your team rendered as you type
-- 👁️ **View Counter** — Track how many times a paste has been viewed
-- 🔒 **Security Headers** — X-Content-Type-Options, X-Frame-Options, Referrer-Policy
-- 🚀 **Vercel Ready** — Deploy to Vercel out of the box
+- **Paste & Parse** — Paste Showdown team exports and get instant visual previews
+- **Beautiful UI** — Dark-mode-first design with animated sprites, stat bars, and glassmorphism
+- **Shareable Links** — Save teams and get unique URLs to share anywhere
+- **Database Storage** — Prisma ORM with SQLite (swap to PostgreSQL for production)
+- **Browse Teams** — Explore public team pastes from the community
+- **Copy Export** — Re-export teams back to Showdown format
+- **Live Preview** — See your team rendered as you type
+- **View Counter** — Track how many times a paste has been viewed
+- **Security Headers** — X-Content-Type-Options, X-Frame-Options, Referrer-Policy
+- **Vercel Ready** — Deploy to Vercel out of the box or at any other hosting!
 
 ## Tech Stack
 
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
-- **Language**: TypeScript
+- **Framework**: [Next.js 16] (https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Database**: [Prisma 7](https://www.prisma.io/) with SQLite
 - **Pokemon Data**: [@pkmn/sets](https://github.com/pkmn/ps) for parsing Showdown team pastes
-- **Deployment**: Vercel-ready
 
 ## Getting Started
 
@@ -104,7 +102,7 @@ PasteMon/
 └── tsconfig.json
 ```
 
-## Switching to PostgreSQL
+## Switching to PostgreSQL (For Vercel Deployment)
 
 1. Update `prisma/schema.prisma`:
    ```prisma
@@ -140,5 +138,4 @@ PasteMon/
 The build script automatically runs `prisma generate` before building.
 
 ## License
-
-MIT
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
