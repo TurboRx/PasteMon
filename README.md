@@ -20,7 +20,7 @@ PasteMon lets you paste your Pokemon Showdown team exports and instantly get a b
 
 ## Tech Stack
 
-- **Framework**: [Next.js 16] (https://nextjs.org/) (App Router)
+- **Framework**: (Next.js 16) [https://nextjs.org/] (App Router)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Database**: [Prisma 7](https://www.prisma.io/) with SQLite
