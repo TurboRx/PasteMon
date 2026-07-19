@@ -8,7 +8,6 @@ interface TeamPreviewProps {
   team: ParsedTeam;
   title?: string;
   showExport?: boolean;
-  showActions?: boolean;
 }
 
 export default function TeamPreview({ team, title, showExport = false }: TeamPreviewProps) {
@@ -25,13 +24,13 @@ export default function TeamPreview({ team, title, showExport = false }: TeamPre
   return (
     <div className="animate-fade-in">
       {(title || showExport) && (
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           {title && <h2 className="text-2xl font-bold text-white">{title}</h2>}
           <div className="flex items-center gap-3">
             <span className="text-sm text-dark-300">{team.pokemon.length} Pokémon</span>
             {showExport && (
               <button onClick={handleCopy} className="btn-secondary text-sm">
-                {copied ? "✓ Copied!" : "📋 Copy Export"}
+                {copied ? "Copied!" : "Copy Export"}
               </button>
             )}
           </div>

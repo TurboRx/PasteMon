@@ -3,7 +3,8 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <div className="animate-fade-in">
-      <section className="relative py-20 text-center">
+      {/* Hero */}
+      <section className="relative py-14 text-center sm:py-20">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-accent-purple/5 blur-[120px]" />
           <div className="absolute left-1/4 top-20 h-[300px] w-[400px] -translate-x-1/2 rounded-full bg-accent-pink/5 blur-[100px]" />
@@ -13,30 +14,35 @@ export default function HomePage() {
         <div className="relative">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-dark-700/50 border border-dark-600 px-4 py-1.5">
             <span className="h-2 w-2 rounded-full bg-accent-blue animate-pulse" />
-            <span className="text-sm font-medium text-dark-200">Pokemon Showdown Team Sharing</span>
+            <span className="text-xs sm:text-sm font-medium text-dark-200">Pokemon Showdown Team Sharing</span>
           </div>
 
-          <h1 className="mx-auto max-w-4xl text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
+          <h1 className="mx-auto max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
             Share your teams
             <br />
             <span className="gradient-text">beautifully.</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-dark-200 leading-relaxed">
+          <p className="mx-auto mt-6 max-w-2xl px-4 text-base text-dark-200 leading-relaxed sm:text-lg">
             Paste your Pokemon Showdown team export and get a stunning visual
             preview with sprites, stats, and a shareable link. The modern way to
             share competitive teams.
           </p>
 
-          <div className="mt-10 flex items-center justify-center gap-4">
-            <Link href="/new" className="btn-primary text-lg px-8 py-3.5">+ New Paste</Link>
-            <Link href="/browse" className="btn-secondary text-lg px-8 py-3.5">Browse Teams</Link>
+          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
+            <Link href="/new" className="btn-primary text-base w-full max-w-[200px] sm:w-auto sm:text-lg px-8 py-3.5 text-center">
+              + New Paste
+            </Link>
+            <Link href="/browse" className="btn-secondary text-base w-full max-w-[200px] sm:w-auto sm:text-lg px-8 py-3.5 text-center">
+              Browse Teams
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Features */}
+      <section className="py-12 sm:py-16">
+        <div className="grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard
             icon={
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -70,9 +76,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="py-16">
-        <h2 className="mb-12 text-center text-3xl font-bold text-white">How it works</h2>
-        <div className="grid gap-8 sm:grid-cols-3">
+      {/* How it works */}
+      <section className="py-12 sm:py-16">
+        <h2 className="mb-10 sm:mb-12 text-center text-2xl sm:text-3xl font-bold text-white">How it works</h2>
+        <div className="grid gap-6 sm:gap-8 sm:grid-cols-3">
           <StepCard step="1" title="Paste" description="Copy your team from Pokemon Showdown's teambuilder and paste it into PasteMon." />
           <StepCard step="2" title="Preview" description="See your team rendered with sprites, stats, moves, and all the details — live as you type." />
           <StepCard step="3" title="Share" description="Save your team and get a unique link to share anywhere. It's that simple." />
@@ -89,11 +96,11 @@ function FeatureCard({ icon, title, description, color }: {
   color: string;
 }) {
   return (
-    <div className="group glass rounded-2xl p-6 transition-all duration-300 hover:border-dark-500 hover:shadow-lg hover:shadow-accent-purple/5">
-      <div className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-white shadow-lg`}>
+    <div className="group glass rounded-2xl p-5 sm:p-6 transition-all duration-300 hover:border-dark-500 hover:shadow-lg hover:shadow-accent-purple/5">
+      <div className={`mb-4 inline-flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br ${color} text-white shadow-lg`}>
         {icon}
       </div>
-      <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
+      <h3 className="mb-2 text-base sm:text-lg font-bold text-white">{title}</h3>
       <p className="text-sm leading-relaxed text-dark-300">{description}</p>
     </div>
   );
@@ -102,10 +109,10 @@ function FeatureCard({ icon, title, description, color }: {
 function StepCard({ step, title, description }: { step: string; title: string; description: string }) {
   return (
     <div className="text-center">
-      <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-dark-700 text-2xl font-bold gradient-text">
+      <div className="mx-auto mb-4 flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl bg-dark-700 text-xl sm:text-2xl font-bold gradient-text">
         {step}
       </div>
-      <h3 className="mb-2 text-lg font-bold text-white">{title}</h3>
+      <h3 className="mb-2 text-base sm:text-lg font-bold text-white">{title}</h3>
       <p className="text-sm leading-relaxed text-dark-300">{description}</p>
     </div>
   );

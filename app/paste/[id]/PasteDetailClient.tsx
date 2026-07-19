@@ -14,6 +14,11 @@ interface PasteData {
   views?: number;
 }
 
+const FORMAT_LABELS: Record<string, string> = {
+  gen9: "Gen 9", gen9ou: "Gen 9 OU", gen9uu: "Gen 9 UU", gen9vgc: "Gen 9 VGC",
+  gen8: "Gen 8", gen7: "Gen 7", gen6: "Gen 6", gen5: "Gen 5", other: "Other",
+};
+
 export default function PasteDetailClient({ paste, team }: { paste: PasteData; team: ParsedTeam }) {
   const [linkCopied, setLinkCopied] = useState(false);
   const [pasteCopied, setPasteCopied] = useState(false);
@@ -34,20 +39,16 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
-  const FORMAT_LABELS: Record<string, string> = {
-    gen9: "Gen 9", gen9ou: "Gen 9 OU", gen9uu: "Gen 9 UU", gen9vgc: "Gen 9 VGC",
-    gen8: "Gen 8", gen7: "Gen 7", gen6: "Gen 6", gen5: "Gen 5", other: "Other",
-  };
-
   return (
     <div className="animate-fade-in">
+      {/* Header */}
       <div className="mb-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-white">{paste.title}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-dark-300">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-white sm:text-3xl">{paste.title}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-dark-300">
               <span>by <span className="font-medium text-dark-200">{paste.author}</span></span>
-              <span className="text-dark-500">·</span>
+              <span className="text-dark-500 hidden sm:inline">·</span>
               <span>{formatDate(paste.createdAt)}</span>
               <span className="text-dark-500">·</span>
               <span className="rounded-lg bg-dark-700 px-2.5 py-0.5 text-xs font-medium text-accent-blue">
@@ -61,23 +62,34 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
               )}
             </div>
           </div>
-          <div className="flex gap-2">
-            <button onClick={copyLink} className="btn-secondary text-sm">
-              {linkCopied ? "✓ Copied!" : "🔗 Copy Link"}
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-2 flex-shrink-0">
+            <button
+              onClick={copyLink}
+              className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
+            >
+              {linkCopied ? "Copied!" : "Copy Link"}
             </button>
-            <button onClick={copyPaste} className="btn-secondary text-sm">
-              {pasteCopied ? "✓ Copied!" : "📋 Copy Paste"}
+            <button
+              onClick={copyPaste}
+              className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
+            >
+              {pasteCopied ? "Copied!" : "Copy Paste"}
             </button>
-            <button onClick={() => setShowRaw(!showRaw)} className="btn-secondary text-sm">
-              {showRaw ? "🎨 Visual" : "📝 Raw"}
+            <button
+              onClick={() => setShowRaw(!showRaw)}
+              className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
+            >
+              {showRaw ? "Visual" : "Raw"}
             </button>
           </div>
         </div>
       </div>
 
       {showRaw ? (
-        <div className="glass rounded-2xl p-6">
-          <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-dark-100">
+        <div className="glass rounded-2xl p-4 sm:p-6">
+          <pre className="overflow-x-auto whitespace-pre-wrap font-mono text-xs leading-relaxed text-dark-100 sm:text-sm">
             {paste.content}
           </pre>
         </div>

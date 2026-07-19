@@ -1,141 +1,230 @@
 # PasteMon
-![PasteMon](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript) ![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss) ![Prisma](https://img.shields.io/badge/Prisma_7-SQLite-2D3748?style=flat-square&logo=prisma)
 
-> A modern Pokemon Showdown team paste and sharing platform.
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?style=flat-square&logo=tailwindcss)
+![Prisma](https://img.shields.io/badge/Prisma-7-2D3748?style=flat-square&logo=prisma)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql)
 
-PasteMon lets you paste your Pokemon Showdown team exports and instantly get a beautiful visual preview with sprites, stats, moves, and more. Save your team with a unique shareable URL and browse public teams from the community.
+> A modern Pokemon Showdown team sharing platform. Paste your team, get a beautiful visual preview, and share with a unique link.
 
 ## Features
 
-- **Paste & Parse** — Paste Showdown team exports and get instant visual previews
-- **Beautiful UI** — Dark-mode-first design with animated sprites, stat bars, and glassmorphism
-- **Shareable Links** — Save teams and get unique URLs to share anywhere
-- **Database Storage** — Prisma ORM with SQLite (swap to PostgreSQL for production)
-- **Browse Teams** — Explore public team pastes from the community
-- **Copy Export** — Re-export teams back to Showdown format
-- **Live Preview** — See your team rendered as you type
-- **View Counter** — Track how many times a paste has been viewed
-- **Security Headers** — X-Content-Type-Options, X-Frame-Options, Referrer-Policy
-- **Vercel Ready** — Deploy to Vercel out of the box or at any other hosting!
+- **Paste & Preview** — Paste Showdown exports and see your team with animated sprites, EV bars, moves, and items
+- **Shareable Links** — Save teams and get a unique URL to share anywhere
+- **Browse & Discover** — Explore public team pastes from the community
+- **Copy Export** — Re-export your team back to Showdown format in one click
+- **Live Preview** — Team renders in real-time as you type
+- **View Counter** — See how many times a paste has been viewed
+- **Dark Mode** — Sleek dark-first design with glassmorphism
 
 ## Tech Stack
 
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Database**: [Prisma 7](https://www.prisma.io/) with SQLite
-- **Pokemon Data**: [@pkmn/sets](https://github.com/pkmn/ps) for parsing Showdown team pastes
+| | |
+|---|---|
+| **Framework** | [Next.js 16](https://nextjs.org/) (App Router) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS v4 |
+| **Database** | PostgreSQL via [Prisma 7](https://www.prisma.io/) + driver adapter |
+| **Pokemon Data** | [@pkmn/sets](https://github.com/pkmn/ps) — Showdown paste parser |
+| **Container** | Docker + Docker Compose |
 
-## Getting Started
+---
+
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+
-- npm
+- Node.js 20+
+- A PostgreSQL database (local or cloud — see options below)
 
-### Installation
+### 1. Clone & install
 
 ```bash
 git clone https://github.com/TurboRx/PasteMon.git
 cd PasteMon
-
 npm install
-
-cp .env.example .env
-npx prisma generate
-npx prisma db push
-
-npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see PasteMon.
+### 2. Configure your database
 
-### Environment Variables
+```bash
+cp .env.example .env
+```
 
-| Variable | Description | Default |
+Edit `.env` and set your connection string:
+
+```env
+DATABASE_URL="postgresql://user:password@host:5432/pastemon?sslmode=require"
+```
+
+**Free cloud PostgreSQL (no local setup needed):**
+
+| Provider | Free Tier | Notes |
 |---|---|---|
-| `DATABASE_URL` | Prisma database connection string | `file:./dev.db` |
+| [Neon](https://neon.tech) | 0.5 GB | Serverless, scales to zero |
+| [Supabase](https://supabase.com) | 500 MB | Full Postgres with extras |
+| [Railway](https://railway.app) | $5 credit/month | Easy, deploy app alongside DB |
 
-### Available Scripts
+**Local with Docker:**
+
+```bash
+# Start a local PostgreSQL instance
+docker run -d \
+  --name pastemon-db \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=pastemon \
+  -p 5432:5432 \
+  postgres:16-alpine
+
+# Then set in .env:
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/pastemon"
+```
+
+### 3. Set up the schema & run
+
+```bash
+npx prisma db push   # Apply schema to the database
+npm run dev          # Start development server
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Deployment
+
+### Vercel (recommended)
+
+1. Push your repo to GitHub
+2. Go to [vercel.com/new](https://vercel.com/new) and import the repo
+3. Add `DATABASE_URL` in **Project Settings → Environment Variables**
+4. Deploy
+
+Vercel builds and serves the Next.js app natively — no extra config needed.
+
+### Docker / Self-Hosted
+
+The repo ships with a `Dockerfile` and `docker-compose.yml` for full self-hosting.
+
+**Option A — Docker Compose (app + database together):**
+
+```bash
+# Start everything
+docker compose up -d
+
+# First time only: apply the schema
+docker compose exec app npx prisma db push
+
+# View logs
+docker compose logs -f app
+```
+
+The app is now running at [http://localhost:3000](http://localhost:3000).
+
+**Option B — Docker with an external database:**
+
+```bash
+docker build -t pastemon .
+
+docker run -d \
+  -p 3000:3000 \
+  -e DATABASE_URL="postgresql://user:password@host:5432/pastemon" \
+  pastemon
+```
+
+### Railway
+
+1. Create a new project and add a **PostgreSQL** service
+2. Copy the connection string from the PostgreSQL service dashboard
+3. Add a new service from your GitHub repo
+4. Set `DATABASE_URL` in the service's environment variables
+5. Deploy
+
+### Render
+
+1. Create a new **PostgreSQL** database on Render
+2. Create a new **Web Service** from your GitHub repo
+3. Set the build command: `npm install && npx prisma generate && npm run build`
+4. Set the start command: `npm start`
+5. Add `DATABASE_URL` as an environment variable
+6. Deploy
+
+### Fly.io
+
+```bash
+fly launch
+fly postgres create
+fly postgres attach <postgres-app-name>
+fly deploy
+```
+
+---
+
+## Environment Variables
+
+| Variable | Description | Required |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection string | Yes |
+
+---
+
+## Scripts
 
 | Script | Description |
 |---|---|
 | `npm run dev` | Start development server |
 | `npm run build` | Build for production |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run db:push` | Push Prisma schema to database |
-| `npm run db:studio` | Open Prisma Studio (DB GUI) |
+| `npm start` | Start production server |
+| `npm run db:push` | Apply schema to the database |
+| `npm run db:migrate` | Run Prisma migrations (production) |
+| `npm run db:studio` | Open Prisma Studio (database GUI) |
 | `npm run db:generate` | Regenerate Prisma Client |
+| `npm run lint` | Run ESLint |
+
+---
 
 ## Project Structure
 
 ```
 PasteMon/
 ├── app/
-│   ├── api/
-│   │   └── paste/
-│   │       ├── route.ts          # POST + GET (list)
-│   │       └── [id]/route.ts     # GET + DELETE
-│   ├── browse/page.tsx           # Browse public pastes
-│   ├── new/page.tsx              # Create new paste
-│   ├── paste/[id]/
-│   │   ├── page.tsx              # View paste (server)
-│   │   └── PasteDetailClient.tsx
+│   ├── api/paste/          # REST API — create & list pastes
+│   │   └── [id]/           # REST API — get & delete by ID
+│   ├── browse/             # Browse public pastes
+│   ├── new/                # Create new paste
+│   ├── paste/[id]/         # Paste detail view
 │   ├── globals.css
 │   ├── layout.tsx
-│   ├── not-found.tsx
-│   └── page.tsx                  # Homepage
+│   └── page.tsx            # Homepage
 ├── components/
-│   ├── PasteForm.tsx
-│   ├── PokemonCard.tsx
-│   └── TeamPreview.tsx
+│   ├── PasteForm.tsx       # Paste creation form with live preview
+│   ├── PokemonCard.tsx     # Individual Pokemon card with stats
+│   └── TeamPreview.tsx     # Full team grid
 ├── lib/
-│   ├── db.ts                     # Prisma client singleton
-│   └── pokemon.ts                # Showdown paste parser
+│   ├── db.ts               # Prisma client (PostgreSQL driver adapter)
+│   └── pokemon.ts          # Showdown paste parser + sprite helpers
 ├── prisma/
-│   └── schema.prisma
-├── prisma.config.ts              # Prisma 7 config (DB URL)
-├── .env.example
+│   └── schema.prisma       # Database schema
+├── prisma.config.ts        # Prisma 7 CLI configuration
+├── Dockerfile              # Multi-stage production Docker image
+├── docker-compose.yml      # App + PostgreSQL for local self-hosting
 ├── next.config.ts
-├── package.json
-└── tsconfig.json
+└── .env.example
 ```
 
-## Switching to PostgreSQL (For Vercel Deployment)
+---
 
-1. Update `prisma/schema.prisma`:
-   ```prisma
-   datasource db {
-     provider = "postgresql"
-   }
-   ```
+## Contributing
 
-2. Update `prisma.config.ts`:
-   ```typescript
-   datasource: {
-     url: process.env.DATABASE_URL || 'postgresql://user:password@host:5432/pastemon',
-   }
-   ```
+1. Fork the repo
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes and commit: `git commit -m "feat: add my feature"`
+4. Push and open a pull request
 
-3. Update `.env`:
-   ```
-   DATABASE_URL="postgresql://user:password@host:5432/pastemon"
-   ```
-
-4. Run migrations:
-   ```bash
-   npx prisma db push
-   ```
-
-## Deploying to Vercel
-
-1. Push your code to GitHub
-2. Connect the repo to [Vercel](https://vercel.com)
-3. Set the `DATABASE_URL` environment variable (use a hosted PostgreSQL like Supabase, Neon, or PlanetScale)
-4. Deploy!
-
-The build script automatically runs `prisma generate` before building.
+---
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+MIT — see [LICENSE](LICENSE) for details.

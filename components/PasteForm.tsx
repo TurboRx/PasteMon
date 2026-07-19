@@ -54,7 +54,7 @@ export default function PasteForm() {
       return;
     }
     if (!team || team.pokemon.length === 0) {
-      setError("Couldn't parse any Pokemon from that paste.");
+      setError("Couldn't parse any Pokemon from that paste. Make sure it's in Showdown export format.");
       return;
     }
 
@@ -67,7 +67,7 @@ export default function PasteForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: title || team.pokemon.map((p) => p.species).join(" / "),
-          author,
+          author: author || "Anonymous",
           format,
           content: paste,
           isPublic,
@@ -76,20 +76,21 @@ export default function PasteForm() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => null);
-        throw new Error(data?.error || "Failed to save paste");
+        throw new Error(data?.error || `Server error (${res.status})`);
       }
 
       const data = await res.json();
       router.push(`/paste/${data.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save paste. Try again.");
+      setError(err instanceof Error ? err.message : "Failed to save paste. Please try again.");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
+      {/* Metadata fields */}
       <div className="grid gap-4 sm:grid-cols-3">
         <div>
           <label className="mb-1.5 block text-sm font-medium text-dark-200">
@@ -137,11 +138,12 @@ export default function PasteForm() {
         </div>
       </div>
 
+      {/* Paste textarea */}
       <div>
         <div className="mb-2 flex items-center justify-between">
           <label className="text-sm font-medium text-dark-200">Team Paste</label>
           <button
-            onClick={() => { setPaste(SAMPLE_PASTE); setTitle("Sample OU Team"); }}
+            onClick={() => { setPaste(SAMPLE_PASTE); setTitle("Sample OU Team"); setError(""); }}
             className="text-xs text-accent-purple transition-colors hover:text-accent-pink"
           >
             Load sample team
@@ -150,16 +152,26 @@ export default function PasteForm() {
         <textarea
           value={paste}
           onChange={(e) => { setPaste(e.target.value); setError(""); }}
-          className="paste-textarea min-h-[280px]"
+          className="paste-textarea min-h-[240px] sm:min-h-[280px]"
           maxLength={50000}
           placeholder={`Paste your Pokemon Showdown team export here...\n\nExample:\nDragapult @ Choice Specs\nAbility: Infiltrator\nTera Type: Dragon\nEVs: 252 SpA / 4 SpD / 252 Spe\nTimid Nature\n- Shadow Ball\n- Draco Meteor\n- Flamethrower\n- U-turn`}
         />
+        {paste.trim() && team && (
+          <p className="mt-1.5 text-xs text-dark-400">
+            {team.pokemon.length > 0
+              ? `${team.pokemon.length} Pokémon parsed`
+              : "No Pokémon detected — check your paste format"}
+          </p>
+        )}
       </div>
 
+      {/* Public toggle */}
       <div className="flex items-center gap-3">
         <button
+          type="button"
           onClick={() => setIsPublic(!isPublic)}
           className={`relative h-6 w-11 rounded-full transition-colors ${isPublic ? "bg-accent-purple" : "bg-dark-600"}`}
+          aria-label={isPublic ? "Make private" : "Make public"}
         >
           <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform ${isPublic ? "translate-x-5" : "translate-x-0"}`} />
         </button>
@@ -168,14 +180,20 @@ export default function PasteForm() {
         </span>
       </div>
 
+      {/* Error */}
       {error && (
         <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
           {error}
         </div>
       )}
 
+      {/* Save button */}
       <div className="flex gap-3">
-        <button onClick={handleSave} disabled={saving || !paste.trim()} className="btn-primary flex items-center gap-2">
+        <button
+          onClick={handleSave}
+          disabled={saving || !paste.trim()}
+          className="btn-primary flex items-center gap-2"
+        >
           {saving ? (
             <>
               <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -185,13 +203,14 @@ export default function PasteForm() {
               Saving...
             </>
           ) : (
-            <>Save &amp; Share</>
+            "Save & Share"
           )}
         </button>
       </div>
 
+      {/* Live preview */}
       {team && team.pokemon.length > 0 && (
-        <div className="mt-8 border-t border-dark-700 pt-8">
+        <div className="mt-6 sm:mt-8 border-t border-dark-700 pt-6 sm:pt-8">
           <TeamPreview team={team} title="Live Preview" showExport />
         </div>
       )}
