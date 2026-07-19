@@ -10,6 +10,11 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# Dummy DATABASE_URL so prisma generate / next build don't throw.
+# Prisma generate only needs the variable to exist — it never connects.
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
 # Generate Prisma client (uses driver adapters — no native engine needed at runtime)
 RUN npx prisma generate
 # Build Next.js (standalone output configured in next.config.ts)
