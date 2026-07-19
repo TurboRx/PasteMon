@@ -20,14 +20,29 @@ export async function GET(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const { deleteToken } = await request.json();
+
+    if (!deleteToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const paste = await prisma.paste.findUnique({ where: { id } });
+    if (!paste) {
+      return NextResponse.json({ error: "Paste not found" }, { status: 404 });
+    }
+
+    if (paste.deleteToken !== deleteToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     await prisma.paste.delete({ where: { id } });
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: "Paste not found" }, { status: 404 });
+    return NextResponse.json({ error: "Failed to delete paste" }, { status: 500 });
   }
 }

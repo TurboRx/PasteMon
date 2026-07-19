@@ -80,6 +80,13 @@ export default function PasteForm() {
       }
 
       const data = await res.json();
+      if (data.deleteToken) {
+        try {
+          const tokens = JSON.parse(localStorage.getItem('pastemon_delete_tokens') || '{}');
+          tokens[data.id] = data.deleteToken;
+          localStorage.setItem('pastemon_delete_tokens', JSON.stringify(tokens));
+        } catch {}
+      }
       router.push(`/paste/${data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to save paste. Please try again.");
@@ -169,6 +176,7 @@ export default function PasteForm() {
       <div className="flex items-center gap-3">
         <button
           type="button"
+          data-toggle
           onClick={() => setIsPublic(!isPublic)}
           className={`relative h-6 w-11 rounded-full transition-colors ${isPublic ? "bg-accent-purple" : "bg-dark-600"}`}
           aria-label={isPublic ? "Make private" : "Make public"}

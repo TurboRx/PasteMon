@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TeamPreview from "@/components/TeamPreview";
 import { ParsedTeam } from "@/lib/pokemon";
+import { useRouter } from "next/navigation";
 
 interface PasteData {
   id: string;
@@ -23,6 +24,40 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
   const [linkCopied, setLinkCopied] = useState(false);
   const [pasteCopied, setPasteCopied] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
+  const router = useRouter();
+  const [canDelete, setCanDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  useEffect(() => {
+    try {
+      const tokens = JSON.parse(localStorage.getItem('pastemon_delete_tokens') || '{}');
+      if (tokens[paste.id]) setCanDelete(true);
+    } catch {}
+  }, [paste.id]);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const tokens = JSON.parse(localStorage.getItem('pastemon_delete_tokens') || '{}');
+      const res = await fetch(`/api/paste/${paste.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deleteToken: tokens[paste.id] }),
+      });
+      if (res.ok) {
+        delete tokens[paste.id];
+        localStorage.setItem('pastemon_delete_tokens', JSON.stringify(tokens));
+        router.push('/browse');
+      } else {
+        setShowDeleteConfirm(false);
+        setDeleting(false);
+      }
+    } catch {
+      setShowDeleteConfirm(false);
+      setDeleting(false);
+    }
+  };
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(window.location.href);
@@ -83,6 +118,31 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
             >
               {showRaw ? "Visual" : "Raw"}
             </button>
+            {canDelete && !showDeleteConfirm && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/20 sm:px-4 sm:text-sm"
+              >
+                Delete
+              </button>
+            )}
+            {showDeleteConfirm && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="rounded-xl bg-red-500 border border-red-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-600 disabled:opacity-50 sm:px-4 sm:text-sm"
+                >
+                  {deleting ? "Deleting..." : "Confirm Delete"}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

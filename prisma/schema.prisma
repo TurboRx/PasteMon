@@ -7,15 +7,17 @@ datasource db {
 }
 
 model Paste {
-  id        String   @id @default(cuid())
-  title     String   @default("")
-  author    String   @default("")
-  format    String   @default("gen9")
-  content   String
-  isPublic  Boolean  @default(true)
-  views     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String   @default("")
+  author      String   @default("")
+  format      String   @default("gen9")
+  content     String
+  isPublic    Boolean  @default(true)
+  views       Int      @default(0)
+  deleteToken String   @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([isPublic, createdAt(sort: Desc)])
+  @@index([deleteToken])
 }

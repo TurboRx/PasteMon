@@ -253,7 +253,7 @@ body {
 /* ─── Mobile touch targets ──────────────────────────────────────────────────── */
 
 @media (max-width: 640px) {
-  button, a[class*="btn"] {
+  button:not([data-toggle]), a[class*="btn"] {
     min-height: 40px;
   }
 }

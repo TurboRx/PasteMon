@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ id: paste.id }, { status: 201 });
+    return NextResponse.json({ id: paste.id, deleteToken: paste.deleteToken }, { status: 201 });
   } catch (err) {
     console.error("POST /api/paste failed:", err);
     return NextResponse.json({ error: "Failed to create paste" }, { status: 500 });
