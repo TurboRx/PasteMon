@@ -22,7 +22,7 @@ const FORMAT_LABELS: Record<string, string> = {
 
 export default function PasteDetailClient({ paste, team }: { paste: PasteData; team: ParsedTeam }) {
   const [linkCopied, setLinkCopied] = useState(false);
-  const [pasteCopied, setPasteCopied] = useState(false);
+
   const [showRaw, setShowRaw] = useState(false);
   const router = useRouter();
   const [canDelete, setCanDelete] = useState(false);
@@ -65,11 +65,7 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
-  const copyPaste = async () => {
-    await navigator.clipboard.writeText(paste.content);
-    setPasteCopied(true);
-    setTimeout(() => setPasteCopied(false), 2000);
-  };
+
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -106,12 +102,7 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
             >
               {linkCopied ? "Copied!" : "Copy Link"}
             </button>
-            <button
-              onClick={copyPaste}
-              className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
-            >
-              {pasteCopied ? "Copied!" : "Copy Paste"}
-            </button>
+
             <button
               onClick={() => setShowRaw(!showRaw)}
               className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
