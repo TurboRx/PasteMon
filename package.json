@@ -11,8 +11,7 @@
     "db:migrate": "prisma migrate deploy",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
-    "postinstall": "prisma generate",
-    "pages:build": "npx @cloudflare/next-on-pages"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@pkmn/sets": "^5.2.0",
