@@ -95,14 +95,16 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Deployment
 
-### Vercel (recommended)
+### Cloudflare Pages (recommended)
 
 1. Push your repo to GitHub
-2. Go to [vercel.com/new](https://vercel.com/new) and import the repo
-3. Add `DATABASE_URL` in **Project Settings → Environment Variables**
-4. Deploy
+2. Go to your Cloudflare Dashboard -> **Workers & Pages** -> **Create application** -> **Pages**
+3. Connect your GitHub repository and select the `PasteMon` project
+4. Set the build command to `npm run pages:build` and output directory to `.vercel/output/static`
+5. Add `DATABASE_URL` in the **Environment variables** section
+6. Deploy
 
-Vercel builds and serves the Next.js app natively — no extra config needed.
+Cloudflare Pages natively supports Next.js applications via the `@cloudflare/next-on-pages` adapter.
 
 ### Docker / Self-Hosted
 
