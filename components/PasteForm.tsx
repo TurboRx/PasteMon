@@ -5,36 +5,6 @@ import { useRouter } from "next/navigation";
 import { parseTeamPaste } from "@/lib/pokemon";
 import TeamPreview from "./TeamPreview";
 
-const SAMPLE_PASTE = `Dragapult @ Choice Specs
-Ability: Infiltrator
-Tera Type: Dragon
-EVs: 252 SpA / 4 SpD / 252 Spe
-Timid Nature
-- Shadow Ball
-- Draco Meteor
-- Flamethrower
-- U-turn
-
-Great Tusk @ Booster Energy
-Ability: Protosynthesis
-Tera Type: Steel
-EVs: 252 Atk / 4 Def / 252 Spe
-Jolly Nature
-- Headlong Rush
-- Close Combat
-- Ice Spinner
-- Rapid Spin
-
-Gholdengo @ Air Balloon
-Ability: Good as Gold
-Tera Type: Fighting
-EVs: 252 SpA / 4 SpD / 252 Spe
-Timid Nature
-IVs: 0 Atk
-- Make It Rain
-- Shadow Ball
-- Focus Blast
-- Nasty Plot`;
 
 export default function PasteForm() {
   const router = useRouter();
@@ -149,12 +119,6 @@ export default function PasteForm() {
       <div>
         <div className="mb-2 flex items-center justify-between">
           <label className="text-sm font-medium text-dark-200">Team Paste</label>
-          <button
-            onClick={() => { setPaste(SAMPLE_PASTE); setTitle("Sample OU Team"); setError(""); }}
-            className="text-xs text-accent-purple transition-colors hover:text-accent-pink"
-          >
-            Load sample team
-          </button>
         </div>
         <textarea
           value={paste}
