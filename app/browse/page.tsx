@@ -1,146 +1,201 @@
-import type { Metadata } from "next";
-import { prisma } from "@/lib/db";
+"use client";
+
+import { useEffect, useState } from "react";
 import { parseTeamPaste, getSpriteUrl } from "@/lib/pokemon";
+import { encodePaste, PasteData } from "@/lib/urlPaste";
 import Link from "next/link";
 
-export const dynamic = "force-static";
+const SAMPLE_TEAMS: (PasteData & { description: string })[] = [
+  {
+    title: "Gen 9 OU Balance (Great Tusk / Kingambit)",
+    author: "CompetitivePro",
+    format: "gen9ou",
+    description: "Classic Gen 9 OU offense balance core featuring Dragapult & Kingambit.",
+    content: `Great Tusk @ Booster Energy
+Ability: Protosynthesis
+Tera Type: Ice
+EVs: 252 Atk / 4 Def / 252 Spe
+Jolly Nature
+- Rapid Spin
+- Headlong Rush
+- Ice Spinner
+- Close Combat
 
-export const metadata: Metadata = {
-  title: "Browse Teams — PasteMon",
-  description: "Explore public Pokemon Showdown team pastes shared by the community.",
-};
+Kingambit @ Lum Berry
+Ability: Supreme Overlord
+Tera Type: Fairy
+EVs: 212 HP / 252 Atk / 44 Spe
+Adamant Nature
+- Kowtow Cleave
+- Sucker Punch
+- Iron Head
+- Swords Dance
 
-interface PageProps {
-  searchParams: Promise<{ page?: string }>;
-}
+Dragapult @ Choice Specs
+Ability: Infiltrator
+Tera Type: Dragon
+EVs: 252 SpA / 4 SpD / 252 Spe
+Timid Nature
+- Shadow Ball
+- Draco Meteor
+- Flamethrower
+- U-turn
 
-export default async function BrowsePage({ searchParams }: PageProps) {
-  const { page: pageStr } = await searchParams;
-  const page = Math.max(1, parseInt(pageStr || "1"));
-  const limit = 12;
+Gholdengo @ Air Balloon
+Ability: Good as Gold
+Tera Type: Fighting
+EVs: 252 SpA / 4 SpD / 252 Spe
+Timid Nature
+- Make It Rain
+- Shadow Ball
+- Focus Blast
+- Nasty Plot
 
-  let pastes: Awaited<ReturnType<typeof prisma.paste.findMany>> = [];
-  let total = 0;
+Ogerpon-Wellspring (F) @ Wellspring Mask
+Ability: Water Absorb
+Tera Type: Water
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+- Ivy Cudgel
+- Horn Leech
+- Knock Off
+- Swords Dance
 
-  try {
-    [pastes, total] = await Promise.all([
-      prisma.paste.findMany({
-        where: { isPublic: true },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
-      }),
-      prisma.paste.count({ where: { isPublic: true } }),
-    ]);
-  } catch (err) {
-    console.error("BrowsePage DB error:", err);
-    return (
-      <div className="animate-fade-in flex min-h-[50vh] flex-col items-center justify-center text-center">
-        <div className="glass rounded-2xl p-10">
-          <h1 className="mb-2 text-2xl font-bold text-white">Database unavailable</h1>
-          <p className="text-dark-300">Could not load pastes right now. Please try again shortly.</p>
-          <Link href="/" className="btn-primary mt-6 inline-block">Go Home</Link>
-        </div>
-      </div>
-    );
-  }
+Iron Valiant @ Booster Energy
+Ability: Quark Drive
+Tera Type: Spirit
+EVs: 4 Def / 252 SpA / 252 Spe
+Timid Nature
+- Moonblast
+- Close Combat
+- Thunderbolt
+- Calm Mind`,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    title: "Gen 9 VGC Rain Core (Archaludon / Pelipper)",
+    author: "VGC Champ",
+    format: "gen9vgc",
+    description: "Heavy rain hyper offense core with Archaludon Electro Shot and Urshifu Rapid Strike.",
+    content: `Pelipper @ Focus Sash
+Ability: Drizzle
+Tera Type: Ghost
+EVs: 4 HP / 252 SpA / 252 Spe
+Modest Nature
+- Weather Ball
+- Hurricane
+- Tailwind
+- Protect
 
-  const totalPages = Math.ceil(total / limit);
+Archaludon @ Assault Vest
+Ability: Stamina
+Tera Type: Grass
+EVs: 252 HP / 156 Def / 100 SpA
+Modest Nature
+- Electro Shot
+- Draco Meteor
+- Flash Cannon
+- Body Press
+
+Urshifu-Rapid-Strike @ Choice Scarf
+Ability: Unseen Fist
+Tera Type: Water
+EVs: 252 Atk / 4 SpD / 252 Spe
+Jolly Nature
+- Surging Strikes
+- Close Combat
+- Aqua Jet
+- U-turn
+
+Amoonguss @ Rocky Helmet
+Ability: Regenerator
+Tera Type: Water
+EVs: 244 HP / 156 Def / 108 SpD
+Bold Nature
+- Spore
+- Rage Powder
+- Pollen Puff
+- Protect`,
+    createdAt: new Date().toISOString(),
+  },
+];
+
+export default function BrowsePage() {
+  const [userPastes, setUserPastes] = useState<PasteData[]>([]);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("pastemon_user_pastes") || "[]");
+      setUserPastes(saved);
+    } catch {}
+  }, []);
+
+  const allPastes = [
+    ...userPastes,
+    ...SAMPLE_TEAMS.map((st) => ({
+      title: st.title,
+      author: st.author,
+      format: st.format,
+      content: st.content,
+      createdAt: st.createdAt,
+    })),
+  ];
 
   return (
     <div className="animate-fade-in">
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-white">Browse Teams</h1>
         <p className="mt-2 text-dark-300">
-          Explore public team pastes shared by the community.
-          {total > 0 && <span className="ml-2 text-dark-400">({total} total)</span>}
+          Explore shareable Pokemon team pastes — 100% databaseless & instant.
         </p>
       </div>
 
-      {pastes.length === 0 ? (
-        <div className="glass rounded-2xl p-12 sm:p-16 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-dark-700">
-            <svg className="h-7 w-7 sm:h-8 sm:w-8 text-dark-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-            </svg>
-          </div>
-          <h2 className="text-xl font-bold text-white">No pastes yet</h2>
-          <p className="mt-2 text-dark-300">Be the first to share a team!</p>
-          <Link href="/new" className="btn-primary mt-6 inline-block">+ New Paste</Link>
-        </div>
-      ) : (
-        <>
-          <div className="grid gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {pastes.map((paste) => {
-              const team = parseTeamPaste(paste.content);
-              const preview = team.pokemon.slice(0, 6);
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {allPastes.map((paste, idx) => {
+          const encoded = encodePaste(paste);
+          const team = parseTeamPaste(paste.content);
+          const preview = team.pokemon.slice(0, 6);
 
-              return (
-                <Link
-                  key={paste.id}
-                  href={`/paste/${paste.id}`}
-                  className="pokemon-card glass group rounded-2xl p-4 sm:p-5 block"
-                >
-                  <div className="mb-3 flex items-center gap-1 overflow-hidden">
-                    {preview.map((p, i) => (
-                      <img
-                        key={i}
-                        src={getSpriteUrl(p.species)}
-                        alt={p.species}
-                        className="h-9 w-9 sm:h-10 sm:w-10 object-contain"
-                      />
-                    ))}
-                  </div>
+          return (
+            <Link
+              key={idx}
+              href={`/paste?d=${encoded}`}
+              className="pokemon-card glass group rounded-2xl p-4 sm:p-5 block"
+            >
+              <div className="mb-3 flex items-center gap-1 overflow-hidden">
+                {preview.map((p, i) => (
+                  <img
+                    key={i}
+                    src={getSpriteUrl(p.species)}
+                    alt={p.species}
+                    className="h-9 w-9 sm:h-10 sm:w-10 object-contain"
+                  />
+                ))}
+              </div>
 
-                  <h3 className="truncate text-base sm:text-lg font-bold text-white transition-colors group-hover:text-accent-purple">
-                    {paste.title}
-                  </h3>
+              <h3 className="truncate text-base sm:text-lg font-bold text-white transition-colors group-hover:text-accent-purple">
+                {paste.title}
+              </h3>
 
-                  <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-dark-300">
-                    <span>{paste.author}</span>
-                    <span className="text-dark-500">·</span>
-                    <span>{new Date(paste.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
-                    <span className="text-dark-500">·</span>
-                    <span className="rounded bg-dark-700 px-1.5 py-0.5 text-xs font-medium text-accent-blue">
-                      {paste.format}
-                    </span>
-                    {paste.views > 0 && (
-                      <>
-                        <span className="text-dark-500">·</span>
-                        <span className="text-dark-400">{paste.views}v</span>
-                      </>
-                    )}
-                  </div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm text-dark-300">
+                <span>{paste.author}</span>
+                <span className="text-dark-500">·</span>
+                <span className="rounded bg-dark-700 px-1.5 py-0.5 text-xs font-medium text-accent-blue">
+                  {paste.format.toUpperCase()}
+                </span>
+              </div>
 
-                  <div className="mt-2 sm:mt-3 flex flex-wrap gap-1">
-                    {preview.map((p, i) => (
-                      <span key={i} className="rounded bg-dark-700/60 px-1.5 sm:px-2 py-0.5 text-xs text-dark-200">
-                        {p.species}
-                      </span>
-                    ))}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="mt-8 sm:mt-10 flex items-center justify-center gap-2">
-              {page > 1 && (
-                <Link href={`/browse?page=${page - 1}`} className="btn-secondary text-sm">
-                  &larr; Previous
-                </Link>
-              )}
-              <span className="px-4 text-sm text-dark-300">Page {page} of {totalPages}</span>
-              {page < totalPages && (
-                <Link href={`/browse?page=${page + 1}`} className="btn-secondary text-sm">
-                  Next &rarr;
-                </Link>
-              )}
-            </div>
-          )}
-        </>
-      )}
+              <div className="mt-2 sm:mt-3 flex flex-wrap gap-1">
+                {preview.map((p, i) => (
+                  <span key={i} className="rounded bg-dark-700/60 px-1.5 sm:px-2 py-0.5 text-xs text-dark-200">
+                    {p.species}
+                  </span>
+                ))}
+              </div>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }

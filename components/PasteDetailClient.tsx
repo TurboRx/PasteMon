@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import TeamPreview from "@/components/TeamPreview";
 import { ParsedTeam } from "@/lib/pokemon";
-import { useRouter } from "next/navigation";
 
 interface PasteData {
   id: string;
@@ -22,42 +21,7 @@ const FORMAT_LABELS: Record<string, string> = {
 
 export default function PasteDetailClient({ paste, team }: { paste: PasteData; team: ParsedTeam }) {
   const [linkCopied, setLinkCopied] = useState(false);
-
   const [showRaw, setShowRaw] = useState(false);
-  const router = useRouter();
-  const [canDelete, setCanDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  useEffect(() => {
-    try {
-      const tokens = JSON.parse(localStorage.getItem('pastemon_delete_tokens') || '{}');
-      if (tokens[paste.id]) setCanDelete(true);
-    } catch {}
-  }, [paste.id]);
-
-  const handleDelete = async () => {
-    setDeleting(true);
-    try {
-      const tokens = JSON.parse(localStorage.getItem('pastemon_delete_tokens') || '{}');
-      const res = await fetch(`/api/paste/${paste.id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deleteToken: tokens[paste.id] }),
-      });
-      if (res.ok) {
-        delete tokens[paste.id];
-        localStorage.setItem('pastemon_delete_tokens', JSON.stringify(tokens));
-        router.push('/browse');
-      } else {
-        setShowDeleteConfirm(false);
-        setDeleting(false);
-      }
-    } catch {
-      setShowDeleteConfirm(false);
-      setDeleting(false);
-    }
-  };
 
   const copyLink = async () => {
     try {
@@ -85,8 +49,6 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
     }
   };
 
-
-
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
@@ -103,14 +65,8 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
               <span>{formatDate(paste.createdAt)}</span>
               <span className="text-dark-500">·</span>
               <span className="rounded-lg bg-dark-700 px-2.5 py-0.5 text-xs font-medium text-accent-blue">
-                {FORMAT_LABELS[paste.format] || paste.format}
+                {FORMAT_LABELS[paste.format] || paste.format.toUpperCase()}
               </span>
-              {paste.views !== undefined && paste.views > 0 && (
-                <>
-                  <span className="text-dark-500">·</span>
-                  <span>{paste.views} view{paste.views !== 1 ? "s" : ""}</span>
-                </>
-              )}
             </div>
           </div>
 
@@ -118,42 +74,20 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
           <div className="flex flex-wrap gap-2 flex-shrink-0">
             <button
               onClick={copyLink}
-              className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
+              className="rounded-xl bg-accent-purple hover:bg-accent-purple/90 border border-accent-purple/40 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-lg shadow-accent-purple/20 sm:text-sm flex items-center gap-2"
             >
-              {linkCopied ? "Copied!" : "Copy Link"}
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.9-9.9l4.5 4.5a4.5 4.5 0 010 6.364l-4.5 4.5a4.5 4.5 0 01-7.244-1.242" />
+              </svg>
+              {linkCopied ? "Shareable Link Copied!" : "Copy Shareable Link"}
             </button>
 
             <button
               onClick={() => setShowRaw(!showRaw)}
               className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
             >
-              {showRaw ? "Visual" : "Raw"}
+              {showRaw ? "Visual Preview" : "Raw Showdown Text"}
             </button>
-            {canDelete && !showDeleteConfirm && (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="rounded-xl bg-red-500/10 border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-400 transition-colors hover:bg-red-500/20 sm:px-4 sm:text-sm"
-              >
-                Delete
-              </button>
-            )}
-            {showDeleteConfirm && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="rounded-xl bg-red-500 border border-red-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-600 disabled:opacity-50 sm:px-4 sm:text-sm"
-                >
-                  {deleting ? "Deleting..." : "Confirm Delete"}
-                </button>
-                <button
-                  onClick={() => setShowDeleteConfirm(false)}
-                  className="rounded-xl bg-dark-600 border border-dark-500 px-3 py-2 text-xs font-semibold text-dark-100 transition-colors hover:bg-dark-500 sm:px-4 sm:text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
           </div>
         </div>
       </div>

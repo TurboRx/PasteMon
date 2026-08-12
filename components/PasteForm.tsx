@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { encodePaste } from "@/lib/urlPaste";
 import { parseTeamPaste } from "@/lib/pokemon";
 import TeamPreview from "./TeamPreview";
-
 
 export default function PasteForm() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function PasteForm() {
 
   const team = paste.trim() ? parseTeamPaste(paste) : null;
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!paste.trim()) {
       setError("Please paste a team first.");
       return;
@@ -32,34 +32,32 @@ export default function PasteForm() {
     setError("");
 
     try {
-      const res = await fetch("/api/paste", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title || team.pokemon.map((p) => p.species).join(" / "),
-          author: author || "Anonymous",
-          format,
-          content: paste,
-          isPublic,
-        }),
+      const pasteTitle = title || team.pokemon.map((p) => p.species).join(" / ");
+      const pasteAuthor = author || "Anonymous";
+      const encoded = encodePaste({
+        title: pasteTitle,
+        author: pasteAuthor,
+        format,
+        content: paste,
+        createdAt: new Date().toISOString(),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error || `Server error (${res.status})`);
-      }
+      try {
+        const saved = JSON.parse(localStorage.getItem('pastemon_user_pastes') || '[]');
+        saved.unshift({
+          id: encoded,
+          title: pasteTitle,
+          author: pasteAuthor,
+          format,
+          content: paste,
+          createdAt: new Date().toISOString(),
+        });
+        localStorage.setItem('pastemon_user_pastes', JSON.stringify(saved.slice(0, 50)));
+      } catch {}
 
-      const data = await res.json();
-      if (data.deleteToken) {
-        try {
-          const tokens = JSON.parse(localStorage.getItem('pastemon_delete_tokens') || '{}');
-          tokens[data.id] = data.deleteToken;
-          localStorage.setItem('pastemon_delete_tokens', JSON.stringify(tokens));
-        } catch {}
-      }
-      router.push(`/paste/${data.id}`);
+      router.push(`/paste?d=${encoded}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to save paste. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to generate share link.");
     } finally {
       setSaving(false);
     }
