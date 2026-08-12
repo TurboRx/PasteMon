@@ -19,17 +19,22 @@ const FORMAT_LABELS: Record<string, string> = {
   gen8: "Gen 8", gen7: "Gen 7", gen6: "Gen 6", gen5: "Gen 5", other: "Other",
 };
 
+import { getShortLink } from "@/lib/urlPaste";
+
 export default function PasteDetailClient({ paste, team }: { paste: PasteData; team: ParsedTeam }) {
   const [linkCopied, setLinkCopied] = useState(false);
+  const [generatingShort, setGeneratingShort] = useState(false);
   const [showRaw, setShowRaw] = useState(false);
 
   const copyLink = async () => {
+    setGeneratingShort(true);
     try {
+      const shortUrl = await getShortLink(window.location.href);
       if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText(shortUrl);
       } else {
         const textArea = document.createElement("textarea");
-        textArea.value = window.location.href;
+        textArea.value = shortUrl;
         textArea.style.position = "absolute";
         textArea.style.left = "-999999px";
         document.body.prepend(textArea);
@@ -43,9 +48,11 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
         }
       }
       setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2000);
+      setTimeout(() => setLinkCopied(false), 2500);
     } catch (err) {
       console.error("Failed to copy link:", err);
+    } finally {
+      setGeneratingShort(false);
     }
   };
 
@@ -74,12 +81,13 @@ export default function PasteDetailClient({ paste, team }: { paste: PasteData; t
           <div className="flex flex-wrap gap-2 flex-shrink-0">
             <button
               onClick={copyLink}
+              disabled={generatingShort}
               className="rounded-xl bg-accent-purple hover:bg-accent-purple/90 border border-accent-purple/40 px-4 py-2.5 text-xs font-bold text-white transition-all shadow-lg shadow-accent-purple/20 sm:text-sm flex items-center gap-2"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.9-9.9l4.5 4.5a4.5 4.5 0 010 6.364l-4.5 4.5a4.5 4.5 0 01-7.244-1.242" />
               </svg>
-              {linkCopied ? "Shareable Link Copied!" : "Copy Shareable Link"}
+              {generatingShort ? "Shortening..." : linkCopied ? "Short Link Copied!" : "Copy Short Link"}
             </button>
 
             <button

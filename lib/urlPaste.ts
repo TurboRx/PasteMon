@@ -36,3 +36,18 @@ export function decodePaste(encoded: string): PasteData | null {
     return null;
   }
 }
+
+export async function getShortLink(longUrl: string): Promise<string> {
+  try {
+    const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`);
+    if (res.ok) {
+      const text = await res.text();
+      if (text && text.startsWith("http")) {
+        return text.trim();
+      }
+    }
+  } catch (err) {
+    console.error("TinyURL generation fallback:", err);
+  }
+  return longUrl;
+}
