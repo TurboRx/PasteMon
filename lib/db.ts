@@ -4,13 +4,8 @@ import { PrismaPg } from '@prisma/adapter-pg';
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
 function createClient() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error(
-      'DATABASE_URL is not set. Please configure your PostgreSQL connection string.\n' +
-      'See .env.example for instructions.'
-    );
-  }
-  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+  const connectionString = process.env.DATABASE_URL || 'postgresql://placeholder:placeholder@localhost:5432/pastemon';
+  const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter });
 }
 
