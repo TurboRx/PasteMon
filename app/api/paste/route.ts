@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+export const dynamic = 'force-static';
+
 const MAX_CONTENT_LENGTH = 50_000;
 const MAX_TITLE_LENGTH = 200;
 const MAX_AUTHOR_LENGTH = 100;

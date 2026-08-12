@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { parseTeamPaste, getSpriteUrl } from "@/lib/pokemon";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export const metadata: Metadata = {
   title: "Browse Teams — PasteMon",
